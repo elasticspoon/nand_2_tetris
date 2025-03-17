@@ -1,45 +1,32 @@
 # frozen_string_literal: true
 
 class AssmSymbol
+  A_INST_REGEX = /@(\S+)/.freeze
+
   attr_reader :symbol
 
-  BUILTIN_SYMBOLS = {
-    '@R0' => 0,
-    '@R1' => 1,
-    '@R2' => 2,
-    '@R3' => 3,
-    '@R4' => 4,
-    '@R5' => 5,
-    '@R6' => 6,
-    '@R7' => 7,
-    '@R8' => 8,
-    '@R9' => 9,
-    '@R10' => 10,
-    '@R11' => 11,
-    '@R12' => 12,
-    '@R13' => 13,
-    '@R14' => 14,
-    '@R15' => 15,
-    '@SCREEN' => 16_384,
-    '@KBD' => 24_576,
-    '@SP' => 0,
-    '@LCL' => 1,
-    '@ARG' => 2,
-    '@THIS' => 3,
-    '@THAT' => 4
-  }.freeze
+  def initialize(symbol, sym_table, prev_inst_num)
+    @symbol = symbol
+    @sym_table = sym_table
+    @prev_inst_num = prev_inst_num
+  end
+
+  def self.a_inst?(line)
+    line.match?(A_INST_REGEX)
+  end
 
   def symbol_code
-    return BUILTIN_SYMBOLS[symbol] if BUILTIN_SYMBOLS[symbol]
+    raise "invalid symbol '#{symbol}'" unless symbol.match?(A_INST_REGEX)
 
-    symbol
+    sym = symbol.match(A_INST_REGEX)[1]
+    int?(sym) ? Integer(sym) : @sym_table.key(sym)
+  end
+
+  def int?(val)
+    val.to_i.to_s == val
   end
 
   def hack_instruction
     format('%016b', symbol_code)
-  end
-
-  def initialize(symbol)
-    @symbol = symbol
   end
 end
