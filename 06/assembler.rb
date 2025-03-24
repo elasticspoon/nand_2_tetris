@@ -5,7 +5,7 @@ require_relative './c_inst'
 require_relative './assm_symbol'
 
 class Assembler
-  LOOP_DEC_REGEX = /\(([A-Z0-9_]+)\)/.freeze
+  LOOP_DEC_REGEX = /\((\S+)\)/.freeze
 
   def initialize
     @sym_table = SymTable.new
