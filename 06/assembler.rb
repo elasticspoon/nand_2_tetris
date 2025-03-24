@@ -15,9 +15,11 @@ class Assembler
   def parse(file_contents, outfile)
     file = File.new(outfile, 'w')
 
-    file_contents.split("\n").filter_map do |line|
+    lines = file_contents.split("\n")
+
+    insts = lines.filter_map do |line|
       line = line.gsub(%r{//.*}, '').gsub(' ', '')
-      next if line.empty?
+      next nil if line.empty?
 
       if label?(line)
         label_name = line.match(LOOP_DEC_REGEX)[1]
@@ -26,8 +28,11 @@ class Assembler
       end
 
       @prev_line += 1
+      line
+    end
+
+    insts.each do |line|
       ins = AssmSymbol.a_inst?(line) ? AssmSymbol.new(line, @sym_table, @prev_line) : CInst.new(line)
-      # puts "#{@prev_line} #{line} #{ins.hack_instruction}"
       file.puts ins.hack_instruction
     end
   ensure
