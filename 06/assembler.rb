@@ -12,7 +12,9 @@ class Assembler
     @prev_line = -1
   end
 
-  def parse(file_contents)
+  def parse(file_contents, outfile)
+    file = File.new(outfile, 'w')
+
     file_contents.split("\n").filter_map do |line|
       line = line.gsub(%r{//.*}, '').gsub(' ', '')
       next if line.empty?
@@ -26,8 +28,10 @@ class Assembler
       @prev_line += 1
       ins = AssmSymbol.a_inst?(line) ? AssmSymbol.new(line, @sym_table, @prev_line) : CInst.new(line)
       # puts "#{@prev_line} #{line} #{ins.hack_instruction}"
-      puts ins.hack_instruction
+      file.puts ins.hack_instruction
     end
+  ensure
+    file.close
   end
 
   def label?(line)
@@ -35,4 +39,5 @@ class Assembler
   end
 end
 
-Assembler.new.parse(File.read('./06/test.asm'))
+input = ARGV[0]
+Assembler.new.parse(File.read(input), input.gsub('.asm', '.hack'))
